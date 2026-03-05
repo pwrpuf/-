@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📐 Test : Architecture & paysage (20 questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #dad0bd 0%, #c3b59b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+            margin: 0;
+        }
+        .app-wrapper {
+            max-width: 1100px;
+            width: 100%;
+            background: #fcf7eb;
+            border-radius: 40px 16px 40px 16px;
+            box-shadow: 0 30px 40px -20px #3f321e, 0 8px 0 0 #ac947b inset, 0 -6px 0 0 #b29e80 inset;
+            padding: 28px 24px 34px 24px;
+            border: 2px solid #dac09f;
+        }
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 500;
+            color: #2c4a2c;
+            padding-left: 20px;
+            border-left: 12px solid #8b6e4b;
+            margin: 0 0 5px 0;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+        .sous-titre {
+            font-size: 1.15rem;
+            color: #564a36;
+            margin-left: 30px;
+            margin-bottom: 28px;
+            font-style: italic;
+            border-bottom: 1px dashed #b49c78;
+            padding-bottom: 8px;
+        }
+        .vocab-mini {
+            background: #e5d5bb;
+            border-radius: 50px 10px 50px 10px;
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            margin-bottom: 28px;
+            border: 1px solid #a58d6d;
+        }
+        .vocab-mini span {
+            background: #fcf3e2;
+            padding: 5px 18px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            border: 1px solid #7b6240;
+            color: #2a3b1f;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+        }
+        .quiz-panel {
+            background: #f3ecdb;
+            border-radius: 36px 8px 36px 8px;
+            padding: 28px 24px;
+            border: 2px solid #dac09a;
+            box-shadow: 0 10px 0 #937c5e;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .q-counter {
+            background: #5a6b4b;
+            color: #fcf3da;
+            font-size: 1.3rem;
+            padding: 5px 25px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .answered-badge {
+            background: #bcaa88;
+            padding: 5px 25px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #222;
+            border: 1px solid #4f5d3d;
+        }
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: 500;
+            color: #1f3a1f;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            background: #fff8e7;
+            padding: 20px 25px;
+            border-radius: 60px 12px 60px 12px;
+            border: 1px solid #bb9f7a;
+            box-shadow: inset 0 2px 5px #efe3cf;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .option {
+            background: #fffcf1;
+            border: 2px solid #bda27f;
+            border-radius: 60px 12px 60px 12px;
+            padding: 15px 25px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: 0.1s ease;
+            box-shadow: 0 4px 0 #957b59;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #1f331c;
+        }
+        .option:hover:not(.disabled-click) {
+            background: #f5e9d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #7b623f;
+        }
+        .option.selected {
+            background: #c2d6b0;
+            border-color: #3d6b33;
+            box-shadow: 0 4px 0 #2f6424;
+            color: #193015;
+        }
+        .option.correct-disabled {
+            background: #abc8a5;
+            border-color: #1f6a1a;
+            opacity: 0.95;
+            box-shadow: 0 2px 0 #1a521a;
+            pointer-events: none;
+        }
+        .option.wrong-disabled {
+            background: #eacbc1;
+            border-color: #b74a3a;
+            opacity: 0.9;
+            box-shadow: 0 2px 0 #943e30;
+            pointer-events: none;
+        }
+        .disabled-click {
+            pointer-events: none;
+        }
+        .lettre {
+            background: #7c6343;
+            color: white;
+            width: 2.8rem;
+            height: 2.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.3rem;
+            box-shadow: inset 0 -3px 0 #4b3b24;
+        }
+        .selected .lettre {
+            background: #2c6424;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin: 30px 0 10px;
+        }
+        button {
+            background: #f2e3ce;
+            border: 2px solid #b4976f;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 60px 8px 60px 8px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #8e7553;
+            transition: 0.05s linear;
+            color: #1f3c1f;
+            flex: 1 1 auto;
+        }
+        button:hover:not(:disabled) {
+            background: #fff2de;
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #7b613f;
+        }
+        button:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #7b613f;
+        }
+        button:disabled {
+            opacity: 0.4;
+            cursor: default;
+            box-shadow: 0 3px 0 #7f6d53;
+        }
+        .action-btn {
+            background: #b9af95;
+            border-color: #746045;
+            color: #1d331d;
+        }
+        .footer-score {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .score-box {
+            background: #4e6b44;
+            color: #faf0db;
+            font-size: 2rem;
+            font-weight: 600;
+            padding: 10px 40px;
+            border-radius: 60px;
+            border: 3px solid #ebdbba;
+        }
+        .reset-btn {
+            background: #cbbc9d;
+            box-shadow: 0 5px 0 #7a6447;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+        }
+        .feedback {
+            background: #f1ecdb;
+            border-left: 12px solid #977e58;
+            padding: 15px 25px;
+            border-radius: 30px 6px 30px 6px;
+            font-size: 1.15rem;
+            margin-top: 20px;
+            border: 1px solid #c9af85;
+        }
+        .feedback.correct-feedback {
+            background: #e0f0da;
+            border-left-color: #36802d;
+        }
+        .feedback.wrong-feedback {
+            background: #fae2da;
+            border-left-color: #c24d36;
+        }
+        hr {
+            border: 1px solid #dacbad;
+            margin: 25px 0 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper" id="app">
+    <h1>🏡 Lexique étendu · 20 questions</h1>
+    <div class="sous-titre">à/au/aux · architecture · paysage</div>
+    <div class="vocab-mini">
+        <span>🏚️ une dépendance</span> <span>🪵 les boiseries</span> <span>⛰️ escarpé</span> <span>🧱 pierre apparente</span>
+        <span>🌿 verdoyant</span> <span>🏘️ hameau isolé</span> <span>🔨 une poutre</span> <span>🪟 volets</span>
+    </div>
+
+    <div id="quizContainer" class="quiz-panel">
+        <!-- Rempli par JS -->
+    </div>
+
+    <div class="footer-score">
+        <button class="reset-btn" id="resetQuizBtn">⟲ Nouveau test</button>
+        <div class="score-box" id="scoreDisplay">0 / 20</div>
+    </div>
+    <hr>
+    <div style="color:#634f36; text-align:right;">complément de nom · descriptions</div>
+</div>
+
+<script>
+(function() {
+    // ---------- 20 QUESTIONS DE VOCABULAIRE (Architecture, paysage, à/au/aux) ----------
+    const questions = [
+        { //1
+            question: "Comment dit-on « дом с зелёными ставнями » ?",
+            options: [
+                "une maison aux volets verts",
+                "une maison au volets verts",
+                "une maison à la volets verts",
+                "une maison des volets verts"
+            ],
+            correct: 0,
+            explication: "✅ « aux » (à + les) car « volets » masculin pluriel → une maison aux volets verts."
+        },
+        { //2
+            question: "Choisissez la bonne forme : « un château ___ forme étrange » (замок странной формы).",
+            options: [
+                "un château aux forme étrange",
+                "un château à la forme étrange",
+                "un château au forme étrange",
+                "un château de la forme étrange"
+            ],
+            correct: 1,
+            explication: "✅ « forme » féminin singulier → à la. « un château à la forme étrange »."
+        },
+        { //3
+            question: "Que signifie « une ferme au toit d’ardoise » ?",
+            options: [
+                "ферма со сланцевой крышей",
+                "ферма с черепичной крышей",
+                "ферма без крыши",
+                "ферма с соломенной крышей"
+            ],
+            correct: 0,
+            explication: "✅ ardoise = сланец. « ферма со сланцевой крышей »."
+        },
+        { //4
+            question: "Comment appelle-t-on une « хозяйственная постройка » ?",
+            options: [
+                "une cabane",
+                "une dépendance",
+                "un corps de bâtiment",
+                "une façade"
+            ],
+            correct: 1,
+            explication: "✅ « une dépendance » = хозяйственная постройка. (cabane — хижина, corps — корпус)."
+        },
+        { //5
+            question: "Quelle expression correspond à « le paysage est vallonné et verdoyant » ?",
+            options: [
+                "пейзаж холмистый и зелёный",
+                "пейзаж скалистый и серый",
+                "дорога крутая",
+                "деревня в низине"
+            ],
+            correct: 0,
+            explication: "✅ vallonné = холмистый ; verdoyant = зеленеющий."
+        },
+        { //6
+            question: "Complétez : « Ce hameau est ___ en pleine campagne » (изолирован в сельской местности).",
+            options: [
+                "abandonné",
+                "escarpé",
+                "isolé",
+                "pentu"
+            ],
+            correct: 2,
+            explication: "✅ isolé = изолированный ; abandonné = заброшенный (но точный перевод — isolé)."
+        },
+        { //7
+            question: "« une jeune fille aux yeux noirs » — quelle est la construction ?",
+            options: [
+                "девушка с чёрными глазами (aux = à + les)",
+                "девушка чёрных глаз",
+                "девушка в чёрных очках",
+                "девушка с чёрными волосами"
+            ],
+            correct: 0,
+            explication: "✅ « aux yeux noirs » = с чёрными глазами (complément de nom caractéristique)."
+        },
+        { //8
+            question: "Comment dit-on « крыша крутая / покатая » ?",
+            options: [
+                "le toit est pentu",
+                "le toit est en pente douce",
+                "la toiture est isolée",
+                "le toit est en ardoise"
+            ],
+            correct: 0,
+            explication: "✅ « pentu » = крутой, покатый. (pente douce = пологий, но не совсем перевод)."
+        },
+        { //9
+            question: "Qu'est-ce qu'« un corps de bâtiment » ?",
+            options: [
+                "основной корпус здания",
+                "крыло здания",
+                "фундамент",
+                "хозяйственная постройка"
+            ],
+            correct: 0,
+            explication: "✅ corps de bâtiment = основной корпус (часто центральная часть)."
+        },
+        { //10
+            question: "Traduire : « une maison aux fenêtres blanches ».",
+            options: [
+                "дом с белыми окнами",
+                "дом с белыми ставнями",
+                "дом из белого камня",
+                "дом с белой крышей"
+            ],
+            correct: 0,
+            explication: "✅ fenêtres = окна ; aux fenêtres blanches = с белыми окнами."
+        },
+        { //11
+            question: "Que signifie « les boiseries » ?",
+            options: [
+                "деревянные элементы (отделка)",
+                "ставни",
+                "балки",
+                "доски"
+            ],
+            correct: 0,
+            explication: "✅ boiseries — деревянная отделка (панели, резьба и т.д.)"
+        },
+        { //12
+            question: "« Le bâtiment est en mauvais état » — перевод?",
+            options: [
+                "здание в хорошем состоянии",
+                "здание в плохом состоянии",
+                "здание отреставрировано",
+                "здание заброшено"
+            ],
+            correct: 1,
+            explication: "✅ en mauvais état = в плохом состоянии."
+        },
+        { //13
+            question: "« la terre est fertile » — это...",
+            options: [
+                "земля плодородная",
+                "земля сухая",
+                "земля каменистая",
+                "почва влажная"
+            ],
+            correct: 0,
+            explication: "✅ fertile = плодородная."
+        },
+        { //14
+            question: "Comment appelle-t-on une petite construction rudimentaire ? (хижина, домик)",
+            options: [
+                "une cabane",
+                "une dépendance",
+                "une ferme",
+                "un hameau"
+            ],
+            correct: 0,
+            explication: "✅ une cabane — хижина, маленький домик."
+        },
+        { //15
+            question: "« une poutre » — c'est quoi ?",
+            options: [
+                "балка (деревянная или металлическая)",
+                "крыша",
+                "фундамент",
+                "ставень"
+            ],
+            correct: 0,
+            explication: "✅ une poutre = балка."
+        },
+        { //16
+            question: "Comment dit-on « фасад » ?",
+            options: [
+                "le toit",
+                "la façade",
+                "le pignon",
+                "le corps"
+            ],
+            correct: 1,
+            explication: "✅ la façade — фасад здания."
+        },
+        { //17
+            question: "« la route est escarpée » signifie :",
+            options: [
+                "дорога крутая, обрывистая",
+                "дорога ровная",
+                "дорога извилистая",
+                "дорога покрыта гравием"
+            ],
+            correct: 0,
+            explication: "✅ escarpé = крутой, обрывистый (резкий склон)."
+        },
+        { //18
+            question: "Traduire : « le village reprend vie ».",
+            options: [
+                "деревня оживает",
+                "деревня исчезает",
+                "деревня стареет",
+                "деревня перестраивается"
+            ],
+            correct: 0,
+            explication: "✅ reprend vie = оживает, возрождается."
+        },
+        { //19
+            question: "Que veut dire « en pierre apparente » ?",
+            options: [
+                "из открытого (видимого) камня",
+                "из искусственного камня",
+                "с каменным забором",
+                "каменоломня"
+            ],
+            correct: 0,
+            explication: "✅ pierre apparente — неоштукатуренный камень, видимая каменная кладка."
+        },
+        { //20
+            question: "Complétez : « Il a été rénové ___ le style de la région. »",
+            options: [
+                "dans",
+                "avec",
+                "par",
+                "sur"
+            ],
+            correct: 0,
+            explication: "✅ « rénové dans le style » — отреставрирован в стиле."
+        }
+    ];
+
+    // données d'état
+    let currentIdx = 0;                     // question visible (mode examen)
+    let userAnswers = new Array(questions.length).fill(null);
+    let quizSubmitted = false;
+
+    const container = document.getElementById('quizContainer');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const resetBtn = document.getElementById('resetQuizBtn');
+
+    // helper : calculer le nombre de bonnes réponses
+    function computeScore() {
+        let correct = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correct) correct++;
+        }
+        return correct;
+    }
+
+    // mise à jour du score affiché
+    function updateScore() {
+        if (quizSubmitted) {
+            const totalCorrect = computeScore();
+            scoreDisplay.textContent = `${totalCorrect} / ${questions.length}`;
+        } else {
+            const answered = userAnswers.filter(a => a !== null).length;
+            scoreDisplay.textContent = `📌 ${answered} / ${questions.length}`;
+        }
+    }
+
+    // rendu principal
+    function render() {
+        if (quizSubmitted) {
+            renderSummary();
+        } else {
+            renderQuestionMode();
+        }
+        updateScore();
+    }
+
+    // Mode question par question (avec navigation)
+    function renderQuestionMode() {
+        const q = questions[currentIdx];
+        const selected = userAnswers[currentIdx];
+
+        const optionsHtml = q.options.map((opt, i) => {
+            let cls = 'option';
+            if (selected === i) cls += ' selected';
+            return `<div class="${cls}" data-opt-index="${i}">
+                <span class="lettre">${String.fromCharCode(65 + i)}</span> ${opt}
+            </div>`;
+        }).join('');
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+
+        const html = `
+            <div class="progress-info">
+                <span class="q-counter">${currentIdx+1} / ${questions.length}</span>
+                <span class="answered-badge">✅ ${answeredCount} répondues</span>
+            </div>
+            <div class="question-text">${q.question}</div>
+            <div class="options-grid" id="optionsGrid">${optionsHtml}</div>
+            <div class="btn-group">
+                <button id="prevBtn" ${currentIdx === 0 ? 'disabled' : ''}>◀ Précédent</button>
+                <button id="nextBtn" ${currentIdx === questions.length-1 ? 'disabled' : ''}>Suivant ▶</button>
+                <button id="submitBtn" class="action-btn" style="background:#b3bb94;">✓ Vérifier tout</button>
+            </div>
+        `;
+        container.innerHTML = html;
+
+        // options cliquables
+        document.querySelectorAll('.option').forEach(optEl => {
+            optEl.addEventListener('click', (e) => {
+                if (quizSubmitted) return;
+                const idx = parseInt(optEl.dataset.optIndex, 10);
+                userAnswers[currentIdx] = idx;
+                render(); // re-rend question
+            });
+        });
+
+        document.getElementById('prevBtn')?.addEventListener('click', () => {
+            if (currentIdx > 0) currentIdx--;
+            render();
+        });
+        document.getElementById('nextBtn')?.addEventListener('click', () => {
+            if (currentIdx < questions.length-1) currentIdx++;
+            render();
+        });
+        document.getElementById('submitBtn')?.addEventListener('click', () => {
+            quizSubmitted = true;
+            render();
+        });
+    }
+
+    // Mode résumé général (toutes les questions avec feedback)
+    function renderSummary() {
+        const totalCorrect = computeScore();
+        let summaryHtml = `<h3 style="margin-bottom: 20px;">📋 Bilan détaillé (${totalCorrect}/${questions.length})</h3>`;
+
+        questions.forEach((q, idx) => {
+            const userChoice = userAnswers[idx];
+            const isCorrect = (userChoice === q.correct);
+            const expl = q.explication;
+
+            let optsHtml = '';
+            q.options.forEach((opt, optIdx) => {
+                let cls = 'option disabled-click';
+                if (optIdx === q.correct) cls += ' correct-disabled';
+                else if (userChoice === optIdx && userChoice !== q.correct) cls += ' wrong-disabled';
+                else cls += ' option';
+
+                optsHtml += `<div class="${cls}"><span class="lettre">${String.fromCharCode(65 + optIdx)}</span> ${opt} ${optIdx === q.correct ? ' ✅' : ''} ${(userChoice === optIdx && userChoice !== q.correct) ? ' ❌' : ''}</div>`;
+            });
+
+            const feedbackClass = (userChoice !== null && isCorrect) ? 'correct-feedback' : 'wrong-feedback';
+            const feedbackMsg = (userChoice !== null) 
+                ? (isCorrect ? '✓ Верно. ' : '✗ Ошибка. ') + expl
+                : '⚠️ Нет ответа. ' + expl;
+
+            summaryHtml += `
+                <div style="margin-bottom: 30px; border-bottom: 1px dashed #bb9e78; padding-bottom: 20px;">
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <span style="background:#516842; color:white; border-radius:30px; padding:2px 15px;">${idx+1}</span>
+                        <span style="font-size:1.2rem;">${q.question}</span>
+                    </div>
+                    <div class="options-grid">${optsHtml}</div>
+                    <div class="feedback ${feedbackClass}">💬 ${feedbackMsg}</div>
+                </div>
+            `;
+        });
+
+        summaryHtml += `<div style="display:flex; justify-content:center; margin-top:20px;"><button id="editModeBtn" style="background:#cdbb9c;">✎ Ответить заново</button></div>`;
+        container.innerHTML = summaryHtml;
+
+        document.getElementById('editModeBtn')?.addEventListener('click', () => {
+            quizSubmitted = false;
+            render();
+        });
+    }
+
+    // réinitialisation totale
+    function resetQuiz() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentIdx = 0;
+        quizSubmitted = false;
+        render();
+    }
+
+    resetBtn.addEventListener('click', resetQuiz);
+
+    // premier affichage
+    render();
+})();
+</script>
+</body>
+</html>
